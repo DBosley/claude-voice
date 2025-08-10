@@ -1,0 +1,134 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.manifest
+*.spec
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+.env
+
+# Testing
+.tox/
+.coverage
+.coverage.*
+.cache
+.pytest_cache/
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# pyenv
+.python-version
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Audio recordings (if saved)
+*.wav
+*.mp3
+voicemode_audio/
+
+# Context directory (sandboxed workspace)
+# Ignore everything in .context except .claude directory structure
+.context/*
+!.context/.claude/
+!.context/README.md
+.context/.claude/*
+!.context/.claude/settings.json
+
+# Session management files
+**/.session_id
+.session_id
+
+# Profile state files
+.last_profile
+**/voice_profile_state.json
+
+# Calibration files
+.audio_calibration.json
+
+# Temporary files
+*.tmp
+*.temp
+*.log
+
+# Distribution / packaging
+.Python
+develop-eggs/
+downloads/
+.installed.cfg
+*.egg-info/
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Environments
+.env.local
+.env.*.local
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# Ruff
+.ruff_cache/
+
+# Local test files
+test_session.py
+test_*.py
+!tests/test_*.py
+
+# TDD guard
+tdd-guard/
+
+# Legacy code
+legacy/

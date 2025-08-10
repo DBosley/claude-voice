@@ -1,0 +1,44 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(*)",
+      "Write(*)",
+      "Edit(*)",
+      "MultiEdit(*)",
+      "Grep(*)",
+      "Glob(*)",
+      "LS(*)",
+      "Read(./**)",
+      "Write(./**)",
+      "Edit(./**)",
+      "MultiEdit(./**)",
+      "Grep(./**)",
+      "Glob(./**)",
+      "LS(./**)",
+      "WebSearch(*)",
+      "WebFetch(*)",
+      "Task(*)",
+      "TodoWrite(*)",
+      "NotebookEdit(*)",
+      "NotebookRead(*)"
+    ],
+    "deny": [
+      "Bash(*)",
+      "Read(/**)",
+      "Write(/**)",
+      "Edit(/**)",
+      "MultiEdit(/**)",
+      "LS(/**)",
+      "Grep(/**)",
+      "Glob(/**)",
+      "Read(../**)",
+      "Write(../**)",
+      "Edit(../**)",
+      "MultiEdit(../**)",
+      "LS(../**)",
+      "Grep(../**)",
+      "Glob(../**)"
+    ],
+    "defaultMode": "default"
+  }
+}
