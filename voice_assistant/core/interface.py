@@ -76,6 +76,42 @@ class VoiceInterface:
             except:
                 pass  # stdin not available (e.g., in tests)
             
+            # For real usage, monitor for ESC in parallel
+            if not isinstance(self.audio_recorder, Mock):
+                self.cancel_requested = False
+                
+                def check_esc():
+                    import tty
+                    try:
+                        old_settings = termios.tcgetattr(sys.stdin)
+                        tty.setraw(sys.stdin.fileno())
+                        
+                        while self.tts_engine.is_speaking:
+                            if select.select([sys.stdin], [], [], 0.1)[0]:
+                                key = sys.stdin.read(1)
+                                if key == '\x1b':
+                                    self.tts_engine.stop()
+                                    self.tts_engine.is_speaking = False
+                                    break
+                        
+                        termios.tcsetattr(sys.stdin, termios.TCSADRAIN, old_settings)
+                    except:
+                        # Fallback for testing or non-terminal environments
+                        while self.tts_engine.is_speaking:
+                            try:
+                                if select.select([sys.stdin], [], [], 0.1)[0]:
+                                    key = sys.stdin.read(1)
+                                    if key == '\x1b':
+                                        self.tts_engine.stop()
+                                        self.tts_engine.is_speaking = False
+                                        break
+                            except:
+                                break
+                
+                monitor_thread = threading.Thread(target=check_esc)
+                monitor_thread.daemon = True
+                monitor_thread.start()
+            
             self.tts_engine.speak(text, friendly)
     
     def listen(self, timeout: Optional[float] = None, quiet: bool = False) -> Optional[str]:
