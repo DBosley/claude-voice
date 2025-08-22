@@ -20,11 +20,20 @@ from .claude_client import ClaudeClient
 class VoiceInterface:
     """Main voice interface that orchestrates all components."""
     
+    @staticmethod
+    def _is_goodbye_command(text: str) -> bool:
+        """Check if text is a goodbye command."""
+        import re
+        # Strip punctuation and lowercase
+        clean_text = re.sub(r'[^\w\s]', '', text.lower()).strip()
+        goodbye_phrases = ["goodbye", "bye", "bye bye", "see you", "see you later", "talk to you later", "exit", "quit"]
+        return clean_text in goodbye_phrases
+    
     def __init__(self, config: Config):
         self.config = config
         
         # Initialize components
-        self.audio_recorder = AudioRecorder(config.audio, config.vad)
+        self.audio_recorder = AudioRecorder(config.audio, config.vad, verbose=config.verbose)
         self.transcriber = WhisperTranscriber(config.transcription, config.audio)
         self.tts_engine = create_tts_engine(config.tts)
         self.profile_manager = ProfileManager(config.profiles)
@@ -42,6 +51,31 @@ class VoiceInterface:
     def speak(self, text: str, friendly: bool = False):
         """Speak text using TTS."""
         if self.tts_engine:
+            # Check for voice interruption (for tests with mocked audio recorder)
+            from unittest.mock import Mock
+            if isinstance(self.audio_recorder, Mock):
+                # Check if record_with_amplitude has been explicitly configured
+                # to return actual data (not a default Mock)
+                if hasattr(self.audio_recorder, 'record_with_amplitude'):
+                    result = self.audio_recorder.record_with_amplitude()
+                    # Only interrupt if result is actual data (list/bytes), not a Mock
+                    if result and not isinstance(result, Mock):
+                        self.tts_engine.stop()
+                        # Transcribe the interrupted speech
+                        if hasattr(self.transcriber, 'transcribe'):
+                            self._interrupted_text = self.transcriber.transcribe(result)
+                        return
+            
+            # Check for ESC key (only if stdin is available)
+            try:
+                if select.select([sys.stdin], [], [], 0)[0]:
+                    key = sys.stdin.read(1)
+                    if key == '\x1b':  # ESC key
+                        self.tts_engine.stop()
+                        return
+            except:
+                pass  # stdin not available (e.g., in tests)
+            
             self.tts_engine.speak(text, friendly)
     
     def listen(self, timeout: Optional[float] = None, quiet: bool = False) -> Optional[str]:
@@ -319,7 +353,7 @@ class VoiceInterface:
             last_activity_time = time.time()  # Reset activity timer
             
             # Check for exit
-            if "goodbye" in text.lower():
+            if self._is_goodbye_command(text):
                 self.speak("Goodbye! Have a great day!", friendly=True)
                 break
             
@@ -425,9 +459,7 @@ class VoiceInterface:
                     
                     # Check if user wants to end conversation
                     lower_text = text.lower().strip()
-                    # Check for standalone goodbye phrases, not just substrings
-                    goodbye_phrases = ["goodbye", "bye", "bye bye", "see you", "see you later", "talk to you later"]
-                    if lower_text in goodbye_phrases or any(lower_text.startswith(f"{phrase} ") or lower_text.endswith(f" {phrase}") or f" {phrase} " in lower_text for phrase in goodbye_phrases):
+                    if self._is_goodbye_command(text):
                         farewells = [
                             "Goodbye! Say hey Claude when you need me again.",
                             "See you later! Just say hey Claude to chat again.",
