@@ -11,6 +11,7 @@ A sophisticated voice-controlled interface for Claude with natural text-to-speec
   - Piper TTS: Fast, lightweight speech synthesis
 - **Voice Activity Detection**: Silero VAD for accurate speech detection
 - **Wake Word Detection**: Configurable wake word with fuzzy matching
+- **TTS Interruption**: Press ESC to immediately stop Claude's speech output
 
 ### 🎯 Interaction Modes
 - **Wake Mode**: Activated by wake word ("Hey Claude" by default)
