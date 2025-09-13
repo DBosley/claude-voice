@@ -18,17 +18,43 @@ try:
 except ImportError:
     VAD_AVAILABLE = False
 
+try:
+    from .resampler import AudioResampler
+    RESAMPLER_AVAILABLE = True
+except ImportError:
+    RESAMPLER_AVAILABLE = False
+
 from ..config import AudioConfig, VADConfig
 
 
 class AudioRecorder:
     """Handles audio recording with optional VAD support."""
     
-    def __init__(self, audio_config: AudioConfig, vad_config: VADConfig):
+    def __init__(self, audio_config: AudioConfig, vad_config: VADConfig, verbose: bool = False):
         self.audio_config = audio_config
         self.vad_config = vad_config
+        self.verbose = verbose
         self.audio = pyaudio.PyAudio()
         self.vad_model = None
+        
+        # Detect device sample rate
+        device_info = self.audio.get_default_input_device_info()
+        self.device_sample_rate = int(device_info['defaultSampleRate'])
+        
+        if verbose:
+            print(f"🎤 Detected device sample rate: {self.device_sample_rate} Hz")
+        
+        # Initialize resampler if needed
+        self.resampler = None
+        if self.device_sample_rate != audio_config.sample_rate:
+            if RESAMPLER_AVAILABLE:
+                from .resampler import AudioResampler
+                self.resampler = AudioResampler(
+                    source_rate=self.device_sample_rate,
+                    target_rate=audio_config.sample_rate
+                )
+                if verbose:
+                    print(f"🔄 Creating resampler: {self.device_sample_rate} Hz → {audio_config.sample_rate} Hz for optimal Whisper performance")
         
         # Initialize VAD if available and enabled
         if VAD_AVAILABLE and vad_config.enabled:

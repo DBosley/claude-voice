@@ -35,7 +35,12 @@ class TestAudioRecorder:
     @pytest.fixture
     def recorder(self, audio_config, vad_config):
         """Create audio recorder."""
-        with patch('pyaudio.PyAudio'):
+        with patch('pyaudio.PyAudio') as mock_pyaudio:
+            mock_audio = Mock()
+            mock_audio.get_default_input_device_info.return_value = {
+                'defaultSampleRate': 16000.0
+            }
+            mock_pyaudio.return_value = mock_audio
             return AudioRecorder(audio_config, vad_config)
     
     def test_recorder_initialization(self, recorder):
@@ -72,6 +77,9 @@ class TestAudioRecorder:
         
         mock_audio = Mock()
         mock_audio.open.return_value = mock_stream
+        mock_audio.get_default_input_device_info.return_value = {
+            'defaultSampleRate': 16000.0
+        }
         mock_pyaudio.return_value = mock_audio
         
         with patch('time.time') as mock_time:

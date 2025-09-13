@@ -73,7 +73,7 @@ class ClaudeClient:
         
         # In verbose mode, show the full command
         if self.config and self.config.verbose:
-            print(f"🔧 Claude command: {' '.join(cmd)}")
+            print(f"\n🔧 Claude command: {' '.join(cmd)}")
             print(f"📁 Working directory: {cwd}")
         
         try:
@@ -124,18 +124,21 @@ class ClaudeClient:
     
     def cancel(self):
         """Cancel the current Claude process."""
-        with self._lock:
-            if self.current_process:
+        # Don't use lock here to avoid deadlock with send_query
+        if self.current_process:
+            try:
+                self.current_process.terminate()
+                # Give it a moment to terminate
                 try:
-                    self.current_process.terminate()
-                    self.current_process.wait(timeout=2)
-                except:
-                    try:
-                        self.current_process.kill()
-                    except:
-                        pass
-                finally:
-                    self.current_process = None
+                    self.current_process.wait(timeout=1)
+                except subprocess.TimeoutExpired:
+                    # Force kill if it doesn't terminate
+                    self.current_process.kill()
+                    self.current_process.wait(timeout=1)
+            except:
+                pass
+            finally:
+                self.current_process = None
     
     @property
     def is_processing(self) -> bool:

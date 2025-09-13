@@ -151,13 +151,26 @@ class CoquiTTS(TTSEngine):
                 # Friendly parameter no longer modifies text
                 # Coqui handles prosody well with proper punctuation
                 
-                # Generate audio
-                self.model.tts_to_file(
-                    text=text,
-                    speaker=speaker,
-                    file_path=tmp_file.name,
-                    speed=self.speech_rate,
-                )
+                # Suppress Coqui's verbose output
+                import sys
+                import io
+                old_stdout = sys.stdout
+                old_stderr = sys.stderr
+                sys.stdout = io.StringIO()
+                sys.stderr = io.StringIO()
+                
+                try:
+                    # Generate audio
+                    self.model.tts_to_file(
+                        text=text,
+                        speaker=speaker,
+                        file_path=tmp_file.name,
+                        speed=self.speech_rate,
+                    )
+                finally:
+                    # Restore output streams
+                    sys.stdout = old_stdout
+                    sys.stderr = old_stderr
                 
                 return Path(tmp_file.name)
         except Exception as e:

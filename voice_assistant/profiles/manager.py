@@ -218,8 +218,10 @@ Created: {Path.cwd()}
         return None
     
     def reset_context(self):
-        """Reset the current context."""
-        self.current_profile = None
+        """Reset the current conversation but keep the profile loaded."""
+        # Keep the current profile loaded
+        # Just start a new session to reset the conversation
+        self._start_new_session()
         self.reset_context_mode = True
         self._save_last_profile()
     

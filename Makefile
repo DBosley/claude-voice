@@ -38,22 +38,22 @@ format:
 run: wake
 
 chat:
-	python claude_voice.py chat $(ARGS)
+	.venv/bin/python claude_voice.py chat $(ARGS)
 
 ask:
-	python claude_voice.py ask $(ARGS)
+	.venv/bin/python claude_voice.py ask $(ARGS)
 
 wake:
-	python claude_voice.py wake $(ARGS)
+	.venv/bin/python claude_voice.py wake $(ARGS)
 
 wake-verbose:
-	python claude_voice.py wake --verbose
+	.venv/bin/python claude_voice.py wake --verbose
 
 chat-verbose:
-	python claude_voice.py chat --verbose
+	.venv/bin/python claude_voice.py chat --verbose
 
 ask-verbose:
-	python claude_voice.py ask --verbose
+	.venv/bin/python claude_voice.py ask --verbose
 
 check:
 	ruff check .

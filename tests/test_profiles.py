@@ -82,16 +82,39 @@ class TestProfileManager:
         assert profile_path is None
     
     def test_reset_context(self, profile_manager):
-        """Test context reset."""
+        """Test context reset - keeps profile but starts new session."""
+        # Load a profile
+        profile_manager.create_profile("test_profile")
+        profile_manager.load_profile("test_profile")
+        assert profile_manager.current_profile == "test_profile"
+        original_session_id = profile_manager.session_id
+        
+        # Reset
+        profile_manager.reset_context()
+        assert profile_manager.current_profile == "test_profile"  # Profile stays loaded
+        assert profile_manager.reset_context_mode == True
+        assert profile_manager.session_id != original_session_id  # New session
+    
+    def test_reset_context_keeps_profile(self, profile_manager):
+        """Test that reset_context keeps the profile loaded but starts a new session."""
         # Load a profile
         profile_manager.create_profile("test_profile")
         profile_manager.load_profile("test_profile")
         assert profile_manager.current_profile == "test_profile"
         
-        # Reset
+        # Get original session ID
+        original_session_id = profile_manager.session_id
+        
+        # Reset context
         profile_manager.reset_context()
-        assert profile_manager.current_profile is None
+        
+        # Profile should still be loaded
+        assert profile_manager.current_profile == "test_profile"
         assert profile_manager.reset_context_mode == True
+        
+        # But should have a new session ID
+        assert profile_manager.session_id != original_session_id
+        assert profile_manager.session_id is not None
     
     def test_get_profile_info(self, profile_manager):
         """Test getting profile information."""
